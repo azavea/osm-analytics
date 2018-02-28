@@ -1,0 +1,10 @@
+version: '3'
+services:
+  osm-analysis:
+    image: quay.io/geotrellis/osm-pgdump2orc:latest
+    build:
+      context: pgdump2orc
+      dockerfile: Dockerfile
+    stdin_open: true
+    tty: true
+
