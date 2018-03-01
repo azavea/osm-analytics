@@ -1,13 +1,13 @@
 #!/bin/sh
-set -ex
+set -e
 
 usage() {
   echo "Usage: $0 [-i <string> (input path)] [-s <string> (scratch directory)] [-o <string> (output path)]" 1>&2
   exit 1
 }
 
-while getopts ":i:s:o:" o; do
-    case "${o}" in
+while getopts ":i:s:o:" x; do
+    case "${x}" in
         i)
             i=${OPTARG}
             echo "I!"
@@ -30,13 +30,13 @@ if [ -z "${i}" ] || [ -z "${s}" ] || [ -z "${o}" ]; then
 fi
 
 pgdump2pbf() {
-  mkdir $2/working
+  mkdir -p $2/working
   cd $2/working
-  planet-dump-ng -f $1 --history-pbf $2/planet-osm.pbf
+  planet-dump-ng -f $1 --history-pbf $2/osm-dump.osh.pbf
 }
 
 # pgdump to pbf
 pgdump2pbf $i $s
 
 # pbf to orc
-osm2orc $s/planet-osm.pbf $o
+osm2orc $s/osm-dump.osh.pbf $o

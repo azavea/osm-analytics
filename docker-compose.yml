@@ -1,10 +1,39 @@
 version: '3'
 services:
-  osm-analysis:
+  osm-pgdump2orc:
     image: quay.io/geotrellis/osm-pgdump2orc:latest
     build:
       context: pgdump2orc
       dockerfile: Dockerfile
     stdin_open: true
     tty: true
+  db:
+    image: quay.io/azavea/postgis:2.3-postgres9.6-slim
+    volumes:
+      - ./data/:/tmp/data/
+    expose:
+      - "5432"
+    environment:
+      POSTGRES_PASSWORD: "osm"
+      POSTGRES_USER: "osm"
+      POSTGRES_DB: "openstreetmap"
+  osm-pgsample:
+    image: quay.io/geotrellis/osm-pgsample:latest
+    volumes:
+      - ./data/:/tmp/data/
+    links:
+      - "db:database"
+    build:
+      context: osm-pgsample
+      dockerfile: Dockerfile
+    environment:
+      PGHOST: "database"
+      PGPORT: "5432"
+      PGUSER: "osm"
+      PGPASSWORD: "osm"
+      PGDATABASE: "openstreetmap"
+    stdin_open: true
+    tty: true
+
+
 
