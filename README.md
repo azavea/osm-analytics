@@ -21,12 +21,12 @@ docker run -v efs:/mnt/efs quay.io/geotrellis/osm-pgdump2orc -i /mnt/osm.pgdump 
 ```
 
 
-### Running a local test
+### Running locally
 ```
 docker-compose build
 
 # This command will spin up a postgres instance and fill it with isle of man data
-#  You should only need to run it if you want to generate a new pgdump file to test
+#  You should only need to run it if you want to generate a new pgdumps to test
 docker-compose run osm-pgsample
 
 # The following command can then be used to produce our orc files. Note
@@ -36,8 +36,9 @@ docker-compose run osm-pgsample
 # Keep in mind that each of the following arguments should be mapped
 #  into the container's volume-mounted address-space!
 #  -i - the input location (the file or dir of the pgdump)
-#  -s - scratch space in which docker can build temporary databases as necessary
-#  -o - the output location of our generated ORC file
+#  -o - the output location of generated ORC files
 docker-compose run -v $(pwd)/data:/mnt/efs osm-pgdump2orc \
-  -i /mnt/efs/iom.pgdump -s /mnt/efs -o /mnt/efs/isle-of-man_sample.osh.orc
+  -i /mnt/efs/iom.pgdump -o /mnt/efs
+docker-compose run -v $(pwd)/data:/mnt/efs osm-pgdump2orc \
+  -i /mnt/efs/iom.pgdump.dir -o /mnt/efs
 ```

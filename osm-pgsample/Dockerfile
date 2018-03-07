@@ -40,7 +40,7 @@ ENV PATH="/root/osmosis/bin:${PATH}"
 
 # Retrieving data to populate DB with
 RUN curl -L http://download.geofabrik.de/europe/isle-of-man-170101.osm.pbf --output /opt/isle-of-man-170101.osm.pbf
-RUN curl -L http://download.geofabrik.de/europe/isle-of-man-170101.osm.pbf --output /opt/isle-of-man-180101.osm.pbf
+RUN curl -L http://download.geofabrik.de/europe/isle-of-man-180101.osm.pbf --output /opt/isle-of-man-180101.osm.pbf
 
 COPY osm.properties /etc/osmosis/osm.properties
 

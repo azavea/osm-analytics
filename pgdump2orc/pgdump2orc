@@ -2,18 +2,14 @@
 set -e
 
 usage() {
-  echo "Usage: $0 [-i <string> (input path)] [-s <string> (scratch directory)] [-o <string> (output path)]" 1>&2
+  echo "Usage: $0 [-i <string> (input path)] [-o <string> (mounted output directory)]" 1>&2
   exit 1
 }
 
-while getopts ":i:s:o:" x; do
+while getopts ":i:o:" x; do
     case "${x}" in
         i)
             i=${OPTARG}
-            echo "I!"
-            ;;
-        s)
-            s=${OPTARG}
             ;;
         o)
             o=${OPTARG}
@@ -25,18 +21,32 @@ while getopts ":i:s:o:" x; do
 done
 shift $((OPTIND-1))
 
-if [ -z "${i}" ] || [ -z "${s}" ] || [ -z "${o}" ]; then
+if [ -z "${i}" ] || [ -z "${o}" ]; then
     usage
 fi
 
 pgdump2pbf() {
   mkdir -p $2/working
   cd $2/working
-  planet-dump-ng -f $1 --history-pbf $2/osm-dump.osh.pbf
+  rm -rf $2/osm-dump.osh.pbf
+  rm -rf $2/osm-dump.osc.xml
+  rm -rf $2/osm-dump.osc.xml.bz2
+  planet-dump-ng -f $1 --history-pbf $2/osm-dump.osh.pbf --changesets $2/osm-dump.osc.xml.bz2
+  bzip2 -dc $2/osm-dump.osc.xml.bz2 > $2/osm-dump.osc.xml
+  rm -rf $2/osm-dump.osc.xml.bz2
+  cd $2
+  rm -rf $2/working
 }
 
 # pgdump to pbf
-pgdump2pbf $i $s
+pgdump2pbf $i $o
 
 # pbf to orc
-osm2orc $s/osm-dump.osh.pbf $o
+rm -rf $o/osm-dump.osh.orc
+osm2orc $o/osm-dump.osh.pbf $o/osm-dump.osh.orc              # history
+rm -rf $o/osm-dump.osh.pbf
+
+rm -rf $o/osm-dump.osc.orc
+osm2orc --changesets $o/osm-dump.osc.xml $o/osm-dump.osc.orc # changesets
+rm -rf $o/osm-dump.osc.xml
+

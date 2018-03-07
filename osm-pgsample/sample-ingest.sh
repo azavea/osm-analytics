@@ -17,12 +17,6 @@ install_osm() {
   cp config/example.database.yml config/database.yml
   bundle exec rake db:create
   psql -d openstreetmap -c "CREATE EXTENSION btree_gist"
-  cd /root/openstreetmap-website/db/functions
-  make libpgosm.so
-  cd /root/openstreetmap-website
-  psql -d openstreetmap -c "CREATE FUNCTION maptile_for_point(int8, int8, int4) RETURNS int4 AS '`pwd`/db/functions/libpgosm', 'maptile_for_point' LANGUAGE C STRICT"
-  psql -d openstreetmap -c "CREATE FUNCTION tile_for_point(int4, int4) RETURNS int8 AS '`pwd`/db/functions/libpgosm', 'tile_for_point' LANGUAGE C STRICT"
-  psql -d openstreetmap -c "CREATE FUNCTION xid_to_int4(xid) RETURNS int4 AS '`pwd`/db/functions/libpgosm', 'xid_to_int4' LANGUAGE C STRICT"
   bundle exec rake db:migrate
 }
 install_osm
@@ -40,5 +34,7 @@ echo "Applying changes"
 osmosis --read-xml-change /opt/iom-2017-changes.osc \
   --write-apidb-change authFile=/etc/osmosis/osm.properties validateSchemaVersion=no
 
-pg_dump -Fc openstreetmap > /tmp/data/iom.pgdump
+mkdir -p /tmp/data/iom.pgdump.dir
+pg_dump -Fd -j 2 openstreetmap -f /tmp/data/iom.pgdump.dir
+pg_dump -Fc openstreetmap -f /tmp/data/iom.pgdump
 
