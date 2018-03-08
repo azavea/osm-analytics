@@ -73,3 +73,4 @@ RUN chmod +x /bin/pgdump2orc
 
 ENTRYPOINT ["pgdump2orc"]
 CMD ["-i", "/mnt/input", "-s", "/mnt/scratch", "-o", "/mnt/scratch/planet-osm.orc"]
+

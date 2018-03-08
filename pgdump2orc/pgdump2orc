@@ -26,27 +26,31 @@ if [ -z "${i}" ] || [ -z "${o}" ]; then
 fi
 
 pgdump2pbf() {
+  echo "Generating PBF from pgdump..."
   mkdir -p $2/working
   cd $2/working
-  rm -rf $2/osm-dump.osh.pbf
-  rm -rf $2/osm-dump.osc.xml
-  rm -rf $2/osm-dump.osc.xml.bz2
+  rm -rf $2/osm-dump.osh.pbf $2/osm-dump.osc.xml $2/osm-dump.osc.xml.bz2
   planet-dump-ng -f $1 --history-pbf $2/osm-dump.osh.pbf --changesets $2/osm-dump.osc.xml.bz2
   bzip2 -dc $2/osm-dump.osc.xml.bz2 > $2/osm-dump.osc.xml
-  rm -rf $2/osm-dump.osc.xml.bz2
   cd $2
-  rm -rf $2/working
+  rm -rf $2/osm-dump.osc.xml.bz2 $2/working
+}
+
+pbf2orc() {
+  echo "Generating history orc..."
+  rm -rf $1/osm-dump.osh.orc
+  osm2orc $1/osm-dump.osh.pbf $1/osm-dump.osh.orc              # history
+  rm -rf $1/osm-dump.osh.pbf
+
+  echo "Generating changeset orc..."
+  rm -rf $1/osm-dump.osc.orc
+  osm2orc --changesets $1/osm-dump.osc.xml $1/osm-dump.osc.orc # changesets
+  rm -rf $1/osm-dump.osc.xml
 }
 
 # pgdump to pbf
 pgdump2pbf $i $o
 
 # pbf to orc
-rm -rf $o/osm-dump.osh.orc
-osm2orc $o/osm-dump.osh.pbf $o/osm-dump.osh.orc              # history
-rm -rf $o/osm-dump.osh.pbf
-
-rm -rf $o/osm-dump.osc.orc
-osm2orc --changesets $o/osm-dump.osc.xml $o/osm-dump.osc.orc # changesets
-rm -rf $o/osm-dump.osc.xml
+pbf2orc $o
 
