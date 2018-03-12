@@ -1,0 +1,48 @@
+{
+    "image": "${batch_image_url}",
+    "vcpus": 16,
+    "memory": 32768,
+    "command": [ // paths below based on a /tmp/data/ volume mount
+      "-f", "/tmp/data/${pgdump-file}",
+      "--history-pbf", "/tmp/data/${output-tag}.osh.pbf",
+      "--pbf", "/tmp/data/${output-tag}.osm.pbf",
+      "--changesets", "/tmp/data/${output-tag}.osc.xml.bz2"
+    ],
+    "volumes": [
+        {
+            "host": {
+                "sourcePath": "/media/ephemeral0"
+            },
+            "name": "ephemeral0"
+        }
+    ],
+    "environment": [
+        {
+            "name": "AWS_DEFAULT_REGION",
+            "value": "${aws_region}"
+        },
+        {
+            "name": "STATUS_PATH",
+            "value": "${status_path}"
+        },
+        {
+            "name": "PGDUMP_PATH",
+            "value": "${pgdump_path}"
+        },
+        {
+            "name": "PBF_OUTPUT_PATH",
+            "value": "${pbf_path}"
+        },
+        {
+            "name": "ENVIRONMENT",
+            "value": "${environment}"
+        }
+    ],
+    "mountPoints": [
+        {
+            "containerPath": "/tmp/data",
+            "readOnly": false,
+            "sourceVolume": "ephemeral0"
+        }
+    ]
+}
