@@ -5,40 +5,39 @@
 OSM database dumps are rather large. As a result, we'll need to mount
 our pgdump and some scratch space with sufficient room for processing while
 supplementary tables are produced. For the authors of this dockerfile,
-AWS Elastic File Storage (EFS) is being used to provide indefinitely
+AWS Elastic Block Storage (EBS) is being used to provide indefinitely
 large blocks of storage space which are then volume mounted. Here's an
 example of what our use might look like:
-
-```
-# Mounting 'infinite' disk space
-sudo mount -t nfs -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2 <file-system-id>.efs.<aws-region>.amazonaws.com:/ efs
-# Copy OSM data to our massive disk
-s3 cp s3://osm/osm.pgdump efs/osm.pgdump
-# Make a directory to work out of
-mkdir efs/scratch
-# Run through a conversion from pgdump to orc
-docker run -v efs:/mnt/efs quay.io/geotrellis/osm-pgdump2orc -i /mnt/osm.pgdump -s /mnt/scratch -o /mnt/planet-osm.orc
-```
 
 
 ### Running locally
 ```
 docker-compose build
 
-# This command will spin up a postgres instance and fill it with isle of man data
-#  You should only need to run it if you want to generate a new pgdumps to test
+# spin up a postgres instance and fill it with isle of man sample data
 docker-compose run osm-pgsample
 
-# The following command can then be used to produce our orc files. Note
-#  the volume mount. It is important that any output files be created on
-#  a mounted portion of the container's FS so that generated data is
-#  available outside the docker run.
-# Keep in mind that each of the following arguments should be mapped
-#  into the container's volume-mounted address-space!
-#  -i - the input location (the file or dir of the pgdump)
-#  -o - the output location of generated ORC files
-docker-compose run -v $(pwd)/data:/mnt/efs osm-pgdump2orc \
-  -i /mnt/efs/iom.pgdump -o /mnt/efs
-docker-compose run -v $(pwd)/data:/mnt/efs osm-pgdump2orc \
-  -i /mnt/efs/iom.pgdump.dir -o /mnt/efs
+# Build the docker images
+docker-compose build
+
+# construct sample isle-of-man pgdump
+docker-compose run osm-pgsample
+
+# use planet-dump-ng to construct pbfs/xml from the pgdump:
+docker-compose run -v $(pwd)/data:/tmp/data planet-dump-ng \
+  -f /tmp/data/iom.pgdump.dir \
+  --history-pbf /tmp/data/iom.osh.pbf \
+  --pbf /tmp/data/iom.osm.pbf \
+  --changesets /tmp/data/iom.osc.xml.bz2
+
+# producing ORC osm history
+docker-compose run -v $(pwd)/data:/tmp/data osm2orc \
+  /tmp/data/iom.osh.pbf /tmp/data/iom.osh.orc
+
+# producing ORC changesets
+bzip2 -dc data/iom.osc.xml.bz2 > data/iom.osc.xml
+
+docker-compose run -v $(pwd)/data:/tmp/data osm2orc \
+  --changesets /tmp/data/iom.osc.xml /tmp/data/iom.osc.orc
 ```
+

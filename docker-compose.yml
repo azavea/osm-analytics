@@ -1,9 +1,18 @@
 version: '3'
 services:
-  osm-pgdump2orc:
-    image: quay.io/geotrellis/osm-pgdump2orc:latest
+  planet-dump-ng:
+    image: quay.io/geotrellis/planet-dump-ng:latest
+    volumes:
+      - /etc/ssl/certs:/etc/ssl/certs
     build:
-      context: pgdump2orc
+      context: planet-dump-ng
+      dockerfile: Dockerfile
+    stdin_open: true
+    tty: true
+  osm2orc:
+    image: quay.io/geotrellis/osm2orc:latest
+    build:
+      context: osm2orc
       dockerfile: Dockerfile
     stdin_open: true
     tty: true
