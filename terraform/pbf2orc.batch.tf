@@ -45,7 +45,7 @@ resource "aws_batch_job_queue" "pbf2orc" {
 }
 
 data "template_file" "pbf2orc_job_definition" {
-  template = "${file("job-definitions/pbf2orc.json")}"
+  template = "${file("job-definitions/batch-pbf2orc.json")}"
 
   vars {
     batch_image_url               = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/raster-foundry-batch:${var.image_version}"

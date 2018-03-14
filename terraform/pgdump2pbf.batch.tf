@@ -45,7 +45,7 @@ resource "aws_batch_job_queue" "pgdump2pbf" {
 }
 
 data "template_file" "pgdump2pbf_job_definition" {
-  template = "${file("job-definitions/pgdump2pbf.json")}"
+  template = "${file("job-definitions/batch-pgdump2pbf.json")}"
 
   vars {
     batch_image_url               = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/raster-foundry-batch:${var.image_version}"
