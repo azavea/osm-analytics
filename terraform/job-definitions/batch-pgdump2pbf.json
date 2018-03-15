@@ -3,10 +3,12 @@
     "vcpus": 16,
     "memory": 32768,
     "command": [ // paths below based on a /tmp/data/ volume mount
-      "-f", "/tmp/data/${pgdump-file}",
-      "--history-pbf", "/tmp/data/${output-tag}.osh.pbf",
-      "--pbf", "/tmp/data/${output-tag}.osm.pbf",
-      "--changesets", "/tmp/data/${output-tag}.osc.xml.bz2"
+      "--pgdump-bucket", "Ref::pgdump-bucket",
+      "--pgdump-key", "Ref::pgdump-key",
+      "--pbf-bucket", "Ref::pbf-bucket",
+      "--history-key-pbf", "Ref::history-key-pbf",
+      "--snapshot-key-pbf", "Ref::snapshot-key-pbf",
+      "--changeset-key-pbf", "Ref::changeset-key-pbf"
     ],
     "volumes": [
         {
@@ -20,22 +22,6 @@
         {
             "name": "AWS_DEFAULT_REGION",
             "value": "${aws_region}"
-        },
-        {
-            "name": "STATUS_PATH",
-            "value": "${status_path}"
-        },
-        {
-            "name": "PGDUMP_PATH",
-            "value": "${pgdump_path}"
-        },
-        {
-            "name": "PBF_OUTPUT_PATH",
-            "value": "${pbf_path}"
-        },
-        {
-            "name": "ENVIRONMENT",
-            "value": "${environment}"
         }
     ],
     "mountPoints": [

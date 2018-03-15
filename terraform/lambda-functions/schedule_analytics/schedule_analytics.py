@@ -4,8 +4,9 @@ import boto3
 
 from datetime import datetime, timedelta
 
+environment = os.getenv('ENVIRONMENT', 'Staging')
 
-client = boto3.client('emr')
+batch = boto3.client('batch')
 
 
 def handler(event, context):

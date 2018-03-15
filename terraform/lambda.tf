@@ -82,3 +82,88 @@ resource "aws_lambda_permission" "schedule_pgdump2orc" {
   principal     = "events.amazonaws.com"
   source_arn    = "${aws_cloudwatch_event_rule.schedule_pgdump2orc.arn}"
 }
+
+#
+# Lambda to kick off analysis of osm orc files
+#
+resource "null_resource" "schedule_analytics" {
+  triggers {
+    uuid = "${uuid()}"
+  }
+
+  provisioner "local-exec" {
+    command = <<EOF
+ls -1 ${path.module}/lambda-functions/schedule_analytics \
+    | grep -v schedule_batch.py \
+    | grep -v requirements.txt \
+    | xargs rm -rf
+pip install --no-cache-dir -t ${path.module}/lambda-functions/schedule_analytics \
+    -r ${path.module}/lambda-functions/schedule_analytics/requirements.txt
+EOF
+  }
+}
+
+data "archive_file" "schedule_analytics" {
+  type        = "zip"
+  source_dir  = "${path.module}/lambda-functions/schedule_analytics"
+  output_path = "${path.module}/../../.tmp/schedule_analytics.zip"
+
+  depends_on = [
+    "null_resource.schedule_analytics",
+  ]
+}
+
+resource "aws_lambda_function" "schedule_analytics" {
+  filename         = "${data.archive_file.schedule_analytics.output_path}"
+  source_code_hash = "${data.archive_file.schedule_analytics.output_base64sha256}"
+  function_name    = "func${var.environment}ScheduleAnalytics"
+  description      = "Function to schedule daily scene imports via AWS Batch."
+  role             = "${aws_iam_role.schedule_analytics.arn}"
+  handler          = "schedule_analytics.handler"
+  runtime          = "python3.6"
+  timeout          = 10
+  memory_size      = 128
+
+  environment {
+    variables = {
+      ENVIRONMENT          = "${var.environment}"
+    }
+  }
+
+  tags {
+    Project     = "${var.project}"
+    Environment = "${var.environment}"
+  }
+}
+
+
+#
+# Cloudwatch scheduling of lambda invocation
+#
+resource "aws_cloudwatch_event_rule" "schedule_analytics" {
+  name        = "rule${var.environment}ScheduleAnalytics"
+  description = "Rule to schedule generation of fresh ORC files from OSM pgdumps."
+
+  # 7 UTC, 12AM PT, 3AM ET
+  schedule_expression = "cron(0 7 * * ? *)"
+}
+
+resource "aws_cloudwatch_event_target" "schedule_analytics" {
+  rule      = "${aws_cloudwatch_event_rule.schedule_analytics.name}"
+  target_id = "target${var.environment}ScheduleAnalytics"
+  arn       = "${aws_lambda_function.schedule_analytics.arn}"
+
+  input = <<INPUT
+{
+    "jobDefinition": "${aws_batch_job_definition.pgdump2pbf.name}"
+}
+INPUT
+}
+
+resource "aws_lambda_permission" "schedule_analytics" {
+  statement_id  = "perm${var.environment}ScheduleFindAOIProjects"
+  action        = "lambda:InvokeFunction"
+  function_name = "${aws_lambda_function.schedule_analytics.function_name}"
+  principal     = "events.amazonaws.com"
+  source_arn    = "${aws_cloudwatch_event_rule.schedule_analytics.arn}"
+}

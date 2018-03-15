@@ -3,8 +3,14 @@
     "vcpus": 4,
     "memory": 8192,
     "command": [
-        "/tmp/data/${pbf_file}",
-        "/tmp/data/${output_tag}.osh.orc"
+        "--pbf-bucket", "Ref::pbf-bucket",
+        "--history-key-pbf", "Ref::pbf-history-key",
+        "--snapshot-key-pbf", "Ref::pbf-snapshot-key",
+        "--changeset-key-pbf", "Ref::pbf-changeset-key",
+        "--orc-bucket", "Ref::orc-bucket",
+        "--history-key-orc", "Ref::orc-history-key",
+        "--snapshot-key-orc", "Ref::orc-snapshot-key",
+        "--changeset-key-orc", "Ref::orc-changeset-key",
     ],
     "volumes": [
         {
@@ -18,22 +24,6 @@
         {
             "name": "AWS_DEFAULT_REGION",
             "value": "${aws_region}"
-        },
-        {
-            "name": "STATUS_PATH",
-            "value": "${status_path}"
-        },
-        {
-            "name": "PBF_PATH",
-            "value": "${pbf_path}"
-        },
-        {
-            "name": "ORC_PATH",
-            "value": "${orc_path}"
-        },
-        {
-            "name": "ENVIRONMENT",
-            "value": "${environment}"
         }
     ],
     "mountPoints": [

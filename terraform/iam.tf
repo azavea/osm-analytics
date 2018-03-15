@@ -51,6 +51,29 @@ resource "aws_iam_role_policy_attachment" "batch_policy" {
   policy_arn = "${var.aws_batch_service_role_policy_arn}"
 }
 
+data "aws_iam_policy_document" "alert_batch_failures_assume_role" {
+  statement {
+    effect = "Allow"
+
+    principals {
+      type        = "Service"
+      identifiers = ["lambda.amazonaws.com"]
+    }
+
+    actions = ["sts:AssumeRole"]
+  }
+}
+
+resource "aws_iam_role" "alert_batch_failures" {
+  name               = "lambda${var.environment}AlertBatchFailures"
+  assume_role_policy = "${data.aws_iam_policy_document.alert_batch_failures_assume_role.json}"
+}
+
+resource "aws_iam_role_policy_attachment" "alert_batch_failures_lambda_policy" {
+  role       = "${aws_iam_role.alert_batch_failures.name}"
+  policy_arn = "${var.aws_lambda_service_role_policy_arn}"
+}
+
 
 #
 # Lambda IAM resources
@@ -83,7 +106,7 @@ resource "aws_iam_role_policy_attachment" "schedule_pgdump2orc_batch_policy" {
   policy_arn = "${var.aws_batch_policy_arn}"
 }
 
-data "aws_iam_policy_document" "alert_batch_failures_assume_role" {
+data "aws_iam_policy_document" "schedule_analytics_assume_role" {
   statement {
     effect = "Allow"
 
@@ -96,13 +119,18 @@ data "aws_iam_policy_document" "alert_batch_failures_assume_role" {
   }
 }
 
-resource "aws_iam_role" "alert_batch_failures" {
-  name               = "lambda${var.environment}AlertBatchFailures"
-  assume_role_policy = "${data.aws_iam_policy_document.alert_batch_failures_assume_role.json}"
+resource "aws_iam_role" "schedule_analytics" {
+  name               = "lambda${var.environment}ScheduleAnalytics"
+  assume_role_policy = "${data.aws_iam_policy_document.schedule_analytics_assume_role.json}"
 }
 
-resource "aws_iam_role_policy_attachment" "alert_batch_failures_lambda_policy" {
-  role       = "${aws_iam_role.alert_batch_failures.name}"
+resource "aws_iam_role_policy_attachment" "schedule_analytics_lambda_policy" {
+  role       = "${aws_iam_role.schedule_analytics.name}"
   policy_arn = "${var.aws_lambda_service_role_policy_arn}"
+}
+
+resource "aws_iam_role_policy_attachment" "schedule_analytics_batch_policy" {
+  role       = "${aws_iam_role.schedule_analytics.name}"
+  policy_arn = "${var.aws_batch_policy_arn}"
 }
 

@@ -3,9 +3,6 @@
 packages:
  - awslogs
 
-runcmd:
-  - curl -o /etc/papertrail-bundle.pem https://papertrailapp.com/tools/papertrail-bundle.pem
-
 write_files:
   - path: /etc/awslogs/awslogs.conf
     permissions: 0644

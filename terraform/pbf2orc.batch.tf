@@ -59,7 +59,7 @@ data "template_file" "pbf2orc_job_definition" {
 }
 
 resource "aws_batch_job_definition" "pbf2orc" {
-  name = "job${var.environment}IngestScene"
+  name = "job${var.environment}PBF2ORC"
   type = "container"
 
   container_properties = "${data.template_file.pbf2orc_job_definition.rendered}"
@@ -77,7 +77,7 @@ resource "aws_batch_job_definition" "pbf2orc" {
 # Autoscaling Resources
 #
 data "template_file" "pbf2orc_container_instance_cloud_config" {
-  template = "${file("cloud-config/container-instance.yml.tpl")}"
+  template = "${file("cloud-config/pbf2orc-container-instance.yml.tpl")}"
 
   vars {
     environment   = "${var.environment}"

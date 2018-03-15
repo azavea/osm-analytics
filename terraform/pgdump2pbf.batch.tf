@@ -59,13 +59,16 @@ data "template_file" "pgdump2pbf_job_definition" {
 }
 
 resource "aws_batch_job_definition" "pgdump2pbf" {
-  name = "job${var.environment}IngestScene"
+  name = "job${var.environment}PGDump2PBF"
   type = "container"
 
   container_properties = "${data.template_file.pgdump2pbf_job_definition.rendered}"
 
   parameters {
-    sceneId = " "
+    pgdump-path = "",
+    history-path = "",
+    snapshot-path = "",
+    changeset-path = ""
   }
 
   retry_strategy {
@@ -77,7 +80,7 @@ resource "aws_batch_job_definition" "pgdump2pbf" {
 # Autoscaling Resources
 #
 data "template_file" "pgdump2pbf_container_instance_cloud_config" {
-  template = "${file("cloud-config/container-instance.yml.tpl")}"
+  template = "${file("cloud-config/pgdump2pbf-container-instance.yml.tpl")}"
 
   vars {
     environment   = "${var.environment}"
