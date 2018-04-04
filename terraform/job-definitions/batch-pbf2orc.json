@@ -6,11 +6,11 @@
         "--pbf-bucket", "Ref::pbf-bucket",
         "--history-key-pbf", "Ref::pbf-history-key",
         "--snapshot-key-pbf", "Ref::pbf-snapshot-key",
-        "--changeset-key-pbf", "Ref::pbf-changeset-key",
+        "--changeset-key-xml", "Ref::xml-changeset-key",
         "--orc-bucket", "Ref::orc-bucket",
         "--history-key-orc", "Ref::orc-history-key",
         "--snapshot-key-orc", "Ref::orc-snapshot-key",
-        "--changeset-key-orc", "Ref::orc-changeset-key",
+        "--changeset-key-orc", "Ref::orc-changeset-key"
     ],
     "volumes": [
         {

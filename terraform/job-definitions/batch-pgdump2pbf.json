@@ -2,7 +2,7 @@
     "image": "${batch_image_url}",
     "vcpus": 16,
     "memory": 32768,
-    "command": [ // paths below based on a /tmp/data/ volume mount
+    "command": [
       "--pgdump-bucket", "Ref::pgdump-bucket",
       "--pgdump-key", "Ref::pgdump-key",
       "--pbf-bucket", "Ref::pbf-bucket",

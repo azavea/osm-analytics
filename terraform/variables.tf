@@ -3,10 +3,14 @@ variable "project" {
 }
 
 variable "environment" {
-  default = "Staging"
+  default = "OsmOrcStaging"
 }
 
-variable "output_tag" { default = "output" }
+variable "pgdump_bucket" {}
+
+variable "pgdump_key" {}
+
+variable "output_bucket" {}
 
 variable "aws_region" {
   default = "us-east-1"
@@ -15,11 +19,6 @@ variable "aws_region" {
 variable "aws_availability_zones" {
   default = ["us-east-1c", "us-east-1d"]
 }
-
-variable "pgdump_s3path" {}
-variable "pbf_s3path" {}
-variable "orc_s3path" {}
-variable "ingest_status_s3path" {}
 
 variable "aws_account_id" {}
 
@@ -57,21 +56,7 @@ variable "aws_ses_policy_arn" {
 
 variable "aws_key_name" {}
 
-variable "vpc_cidr_block" {
-  default = "10.0.0.0/16"
-}
-
-variable "external_access_cidr_block" {
-  default = "66.212.12.106/32"
-}
-
-variable "vpc_private_subnet_cidr_blocks" {
-  default = ["10.0.1.0/24", "10.0.3.0/24"]
-}
-
-variable "vpc_public_subnet_cidr_blocks" {
-  default = ["10.0.0.0/24", "10.0.2.0/24"]
-}
+variable "public_subnets" { type = "list" }
 
 variable "image_version" {}
 
@@ -103,11 +88,9 @@ variable "batch_ami_id" {}
 
 variable "spot_fleet_bid_percentage" {}
 
-variable "dataproc_vpc_id" {}
-
-variable "dataproc_private_subnet_cidr_block" {}
-
-variable "bastion_ami" {}
+variable "bastion_ami" {
+  default = "ami-ff02509a"
+}
 
 variable "bastion_instance_type" {
   default = "t2.micro"
