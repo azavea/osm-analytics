@@ -1,4 +1,4 @@
-ARG pdng=1.1.5
+ARG pdng=1.1.6
 
 FROM debian:buster-slim as osm-pdng-build
 ARG pdng

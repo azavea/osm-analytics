@@ -1,4 +1,4 @@
-ARG osm2orc=0.4.0
+ARG osm2orc=0.5.2
 
 FROM openjdk:8-slim as osm2orc-build
 ARG osm2orc
