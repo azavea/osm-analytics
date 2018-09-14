@@ -1,0 +1,34 @@
+{
+    "image": "${batch_image_url}",
+    "vcpus": 16,
+    "memory": 32768,
+    "command": [
+      "--pgdump-bucket", "Ref::pgdump-bucket",
+      "--pgdump-key", "Ref::pgdump-key",
+      "--pbf-bucket", "Ref::pbf-bucket",
+      "--history-key-pbf", "Ref::history-key-pbf",
+      "--snapshot-key-pbf", "Ref::snapshot-key-pbf",
+      "--changeset-key-pbf", "Ref::changeset-key-pbf"
+    ],
+    "volumes": [
+        {
+            "host": {
+                "sourcePath": "/media/ephemeral0"
+            },
+            "name": "ephemeral0"
+        }
+    ],
+    "environment": [
+        {
+            "name": "AWS_DEFAULT_REGION",
+            "value": "${aws_region}"
+        }
+    ],
+    "mountPoints": [
+        {
+            "containerPath": "/tmp/data",
+            "readOnly": false,
+            "sourceVolume": "ephemeral0"
+        }
+    ]
+}

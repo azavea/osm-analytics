@@ -1,0 +1,36 @@
+{
+    "image": "${batch_image_url}",
+    "vcpus": 4,
+    "memory": 8192,
+    "command": [
+        "--pbf-bucket", "Ref::pbf-bucket",
+        "--history-key-pbf", "Ref::pbf-history-key",
+        "--snapshot-key-pbf", "Ref::pbf-snapshot-key",
+        "--changeset-key-xml", "Ref::xml-changeset-key",
+        "--orc-bucket", "Ref::orc-bucket",
+        "--history-key-orc", "Ref::orc-history-key",
+        "--snapshot-key-orc", "Ref::orc-snapshot-key",
+        "--changeset-key-orc", "Ref::orc-changeset-key"
+    ],
+    "volumes": [
+        {
+            "host": {
+                "sourcePath": "/media/ephemeral0"
+            },
+            "name": "ephemeral0"
+        }
+    ],
+    "environment": [
+        {
+            "name": "AWS_DEFAULT_REGION",
+            "value": "${aws_region}"
+        }
+    ],
+    "mountPoints": [
+        {
+            "containerPath": "/tmp/data",
+            "readOnly": false,
+            "sourceVolume": "ephemeral0"
+        }
+    ]
+}

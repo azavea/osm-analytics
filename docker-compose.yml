@@ -1,9 +1,32 @@
 version: '3'
 services:
-  osm-pgdump2orc:
-    image: quay.io/geotrellis/osm-pgdump2orc:latest
+  planet-dump-ng:
+    image: quay.io/geotrellis/planet-dump-ng:latest
+    volumes:
+      - /etc/ssl/certs:/etc/ssl/certs
     build:
-      context: pgdump2orc
+      context: docker/planet-dump-ng
+      dockerfile: Dockerfile
+    stdin_open: true
+    tty: true
+  batch-pgdump2pbf:
+    image: quay.io/geotrellis/batch-pgdump2pbf:latest
+    build:
+      context: docker/batch-pgdump2pbf
+      dockerfile: Dockerfile
+    stdin_open: true
+    tty: true
+  osm2orc:
+    image: quay.io/geotrellis/osm2orc:latest
+    build:
+      context: docker/osm2orc
+      dockerfile: Dockerfile
+    stdin_open: true
+    tty: true
+  batch-pbf2orc:
+    image: quay.io/geotrellis/batch-pbf2orc:latest
+    build:
+      context: docker/batch-pbf2orc
       dockerfile: Dockerfile
     stdin_open: true
     tty: true
@@ -24,7 +47,7 @@ services:
     links:
       - "db:database"
     build:
-      context: osm-pgsample
+      context: docker/osm-pgsample
       dockerfile: Dockerfile
     environment:
       PGHOST: "database"
@@ -34,6 +57,4 @@ services:
       PGDATABASE: "openstreetmap"
     stdin_open: true
     tty: true
-
-
 
